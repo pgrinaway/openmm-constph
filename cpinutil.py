@@ -132,6 +132,7 @@ def main(opt):
          titratable_residues.append(resname)
    else:
       titratable_residues = residues.titratable_residues[:]
+   print str(titratable_residues)
    
    solvent_ions = ['WAT', 'Na+', 'Br-', 'Cl-', 'Cs+', 'F-', 'I-', 'K+', 'Li+',
                    'Mg+', 'Rb+', 'CIO', 'IB', 'MG2']
@@ -187,7 +188,9 @@ def main(opt):
                      solvated=solvated, first_solvent=first_solvent)
    for resnum in resnums:
       resname = parm.parm_data['RESIDUE_LABEL'][resnum-1]
-      if not resname in titratable_residues: continue
+      if not resname in titratable_residues:
+          print resname
+          continue
       res = getattr(residues, resname)
       # Filter out termini (make sure the residue in the prmtop has as many
       # atoms as the titratable residue defined in residues.py)
@@ -200,6 +203,7 @@ def main(opt):
       # If we have gotten this far, add it to the list.
       main_reslist.add_residue(res, resnum,
                                parm.parm_data['RESIDUE_POINTER'][resnum-1])
+
    
    # Set the states if requested
    if resstates is not None:

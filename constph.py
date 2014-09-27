@@ -506,7 +506,7 @@ class MonteCarloTitration(object):
         """
         return list(self.titrationStates) # deep copy
 
-    def getTitrationStateTotalCharge(self, titration_group_index):
+    def getTitrationStateTotalCharge(self, titration_group_index, titration_state_index, titratable_group_index):
         """
         Return the total charge for the specified titration state.
         
@@ -594,12 +594,26 @@ class MonteCarloTitration(object):
 
             # Update parameters in Context, if specified.
             if context and hasattr(force, 'updateParametersInContext'): 
-                force.updateParametersInContext(context)                
+                force.updateParametersInContext(context)
 
         # Update titration state records.
         self.titrationStates[titration_group_index] = titration_state_index
 
         return
+
+    def calibrate(self, context):
+        """
+        Performs calibration by estimating point energies of each titration state
+        if this only has one titratable residue. Otherwise, bad things happen.
+
+        """
+        energy_list = []
+        for state in self.getTitrationState():
+            self.setTitrationState(0,state,context=context)
+            state = context.getState(getEnergy=True)
+            energy_list.append(state.getPotentialEnergy())
+        return energy_list
+
 
     def update(self, context):
         """
@@ -740,6 +754,7 @@ class MonteCarloTitration(object):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+    run_dynamics = False
     
     #
     # Test with an example from the Amber 11 distribution.
@@ -754,10 +769,14 @@ if __name__ == "__main__":
     pH = 7.0
 
     # Filenames.
-    prmtop_filename = 'amber-example/prmtop'
-    inpcrd_filename = 'amber-example/min.x'
-    cpin_filename = 'amber-example/cpin'
-    
+    #prmtop_filename = 'amber-example/prmtop'
+    #inpcrd_filename = 'amber-example/min.x'
+    #cpin_filename = 'amber-example/cpin'
+
+    prmtop_filename = 't4_ex/ligand.prmtop'
+    inpcrd_filename = 't4_ex/ligand.inpcrd'
+    cpin_filename = 't4_ex/ligand.cpin'
+
     # Calibration on a terminally-blocked amino acid in implicit solvent
     #prmtop_filename = 'calibration-implicit/tyr.prmtop'
     #inpcrd_filename = 'calibration-implicit/tyr.inpcrd'
@@ -795,30 +814,34 @@ if __name__ == "__main__":
     # Minimize energy.
     print "Minimizing energy..."
     openmm.LocalEnergyMinimizer.minimize(context, 10.0)
-    
+
+    ref_e_list = []
     # Run dynamics.
     state = context.getState(getEnergy=True)
     potential_energy = state.getPotentialEnergy()
     print "Initial protonation states: %s   %12.3f kcal/mol" % (str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole)
-    for iteration in range(niterations):
-        # Run some dynamics.
-        initial_time = time.time()
-        integrator.step(nsteps)
-        state = context.getState(getEnergy=True)
-        final_time = time.time()
-        elapsed_time = final_time - initial_time
-        print "  %.3f s elapsed for %d steps of dynamics" % (elapsed_time, nsteps)
+    if run_dynamics:
+        for iteration in range(niterations):
+            # Run some dynamics.
+            initial_time = time.time()
+            integrator.step(nsteps)
+            state = context.getState(getEnergy=True)
+            final_time = time.time()
+            elapsed_time = final_time - initial_time
+            print "  %.3f s elapsed for %d steps of dynamics" % (elapsed_time, nsteps)
 
-        # Attempt protonation state changes.
-        initial_time = time.time()
-        mc_titration.update(context)    
-        state = context.getState(getEnergy=True)
-        final_time = time.time()
-        elapsed_time = final_time - initial_time
-        print "  %.3f s elapsed for %d titration trials" % (elapsed_time, mc_titration.getNumAttemptsPerUpdate())
+            # Attempt protonation state changes.
+            initial_time = time.time()
+            mc_titration.update(context)
+            state = context.getState(getEnergy=True)
+            final_time = time.time()
+            elapsed_time = final_time - initial_time
+            print "  %.3f s elapsed for %d titration trials" % (elapsed_time, mc_titration.getNumAttemptsPerUpdate())
 
-        # Show titration states.
-        state = context.getState(getEnergy=True)
-        potential_energy = state.getPotentialEnergy()
-        print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
+            # Show titration states.
+            state = context.getState(getEnergy=True)
+            potential_energy = state.getPotentialEnergy()
+            print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
 
+    else:
+        ref_e_list = mc_titration.calibrate(context)

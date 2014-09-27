@@ -35,6 +35,16 @@ def _atom_name_list(list_of_names):
 def _generate_charge_python(list_of_charges, ref_ene, prot_state=1):
     return "PX.add_state(protcnt=%d, refene=%s, charges=%s)\n" % (prot_state, ref_ene, str(list_of_charges))
 
+def _generate_zero_refenergies(num_refene):
+    refene_string = ""
+    for i in range(1,num_refene+1):
+        str_to_add = """refene%d = _ReferenceEnergy(igb2=0, igb5=0)\n
+        refene%d.solvent_energies()\n
+        refene%d.dielc2_energies(igb2=0, igb5=0, igb8=0)\n
+        refene%d.dielc2.solvent_energies()\n""" % (i, i, i, i)
+        refene_string+=str_to_add
+    return refene_string
+
 def generate_fluorinated_mols(starting_mol):
     """
     Takes an organic molecule, and creates a list of molecules with each hydrogen substituted with a fluorine
