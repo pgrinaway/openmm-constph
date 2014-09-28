@@ -136,6 +136,7 @@ class MonteCarloTitration(object):
         self.cpin_filename = cpin_filename
         self.debug = debug
         self._topology = prmtop.topology
+        self.cpxml_string = cpxml_string
 
         # Initialize titration group records.
         self.titrationGroups = list()
@@ -161,14 +162,12 @@ class MonteCarloTitration(object):
                 self.forces_to_update.append(force)            
 
         if cpxml_string:
-            self._register_titratable_groups(cpxml_string)
+            self._register_titratable_groups()
 
         elif cpin_filename:
             # Load AMBER cpin file defining protonation states.
-            if cpin_filename:
-                namelist = self._parse_fortran_namelist(cpin_filename, 'CNSTPH')
-            else:
-                namelist = self._parse_cpxml(cpxml_string)
+            namelist = self._parse_fortran_namelist(cpin_filename, 'CNSTPH')
+
 
             # Make sure RESSTATE is a list.
             if type(namelist['RESSTATE'])==int:
@@ -218,7 +217,7 @@ class MonteCarloTitration(object):
         return
 
 
-    def _register_titratable_groups(self, cpxml):
+    def _register_titratable_groups(self):
         """
         Accepts a constant pH xml, and uses the loaded prmtop to identify
         where titratable groups are and add data as needed
@@ -229,27 +228,33 @@ class MonteCarloTitration(object):
         """
         #get a copy of the topology, load in the xml
         top = copy.deepcopy(self._topology)
-        xmlroot = etree.fromstring(cpxml).getroot()
+        cpxml = self.cpxml_string
+        xmlroot = etree.fromstring(cpxml)
         list_of_titratables = xmlroot.xpath(u'//TitratableResidue/@Name')
+        print str(list_of_titratables)
         if list_of_titratables == []:
             return
 
         #iterate through the residues in the topology, keeping track of added groups
         group_index = 0
         for res in top.residues():
-            if res in list_of_titratables:
+            if res.name in list_of_titratables:
                 atom_indices = [atm.index for atm in res.atoms()]
                 self.addTitratableGroup(atom_indices)
-                res_info  =xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']' % res)[0]
-                for titration_state in xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']/States/State'):
+
+
+                for titration_state in xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']/States/State' % res.name):
                     charges = [float(chargexml.attrib['charge']) for chargexml in titration_state.getchildren()]
                     charges = units.Quantity(charges, units.elementary_charge)
                     relative_energy = float(titration_state.attrib['igb2']) #in the future add options for other models
                     pKref = 0.0
+                    print "adding state"
                     proton_count = int(titration_state.attrib['proton_count'])
                     self.addTitrationState(group_index, pKref, relative_energy, charges, proton_count)
                 group_index += 1
-
+        print "there are now %d titration groups" % self.getNumTitratableGroups()
+        for groups in range(self.getNumTitratableGroups()):
+            self.setTitrationState(groups,0)
 
 
 
@@ -600,6 +605,8 @@ class MonteCarloTitration(object):
         """
 
         # Check parameters for validity.
+        print "group index %d" % titration_group_index
+        print "number of titratable groups %d" % self.getNumTitratableGroups()
         if titration_group_index not in range(self.getNumTitratableGroups()):
             raise Exception("Invalid titratable group requested.  Requested %d, valid groups are in range(%d)." % (titration_group_index, self.getNumTitratableGroups()))        
         if titration_state_index not in range(self.getNumTitrationStates(titration_group_index)):
@@ -656,18 +663,38 @@ class MonteCarloTitration(object):
 
         return
 
-    def calibrate(self, context):
+    def calibrate(self, context, residue_to_calibrate):
         """
         Performs calibration by estimating point energies of each titration state
-        if this only has one titratable residue. Otherwise, bad things happen.
+        if this only has one titratable residue. Otherwise, bad things happen. This
+        method will output constant pH xml with adjusted energies if there is a cpxml
+        input
+
+        Parameters
+        ----------
+        context : simtk.openmm.Context
+            simtk.openmm.Context object initialized with the system to be calibrated
+
 
         """
         energy_list = []
-        for state in self.getTitrationState():
+        for state in range(self.getNumTitrationStates(0)):
+            print str(state)
             self.setTitrationState(0,state,context=context)
             state = context.getState(getEnergy=True)
             energy_list.append(state.getPotentialEnergy())
-        return energy_list
+        if self.cpxml_string:
+            cpxml_copy = copy.deepcopy(self.cpxml_string)
+            xmlroot = etree.fromstring(cpxml_copy)
+            print "the length of the energy list is %d" % len(energy_list)
+            for index, titration_state in enumerate(xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']/States/State' % residue_to_calibrate)):
+                titration_state.attrib['igb2']=str(energy_list[index]/energy_list[index].unit)
+            return etree.tostring(xmlroot, pretty_print=True)
+        else:
+            return energy_list
+
+
+
 
 
     def update(self, context):
@@ -830,7 +857,7 @@ if __name__ == "__main__":
 
     prmtop_filename = 't4_ex/ligand.prmtop'
     inpcrd_filename = 't4_ex/ligand.inpcrd'
-    cpin_filename = 't4_ex/ligand.cpin'
+    cpxml_filename = 't4_ex/cpxml_3.xml'
 
     # Calibration on a terminally-blocked amino acid in implicit solvent
     #prmtop_filename = 'calibration-implicit/tyr.prmtop'
@@ -854,13 +881,13 @@ if __name__ == "__main__":
     inpcrd = app.AmberInpcrdFile(inpcrd_filename)
     prmtop = app.AmberPrmtopFile(prmtop_filename)
     system = prmtop.createSystem(implicitSolvent=app.OBC2, nonbondedMethod=app.NoCutoff, constraints=app.HBonds)
-
+    cpxml_string = "".join(open(cpxml_filename,'r').readlines())
     # Initialize Monte Carlo titration.
     print "Initializing Monte Carlo titration..."
-    mc_titration = MonteCarloTitration(system, temperature, pH, prmtop, cpin_filename, debug=True)
+    mc_titration = MonteCarloTitration(system, temperature, pH, prmtop, cpxml_string=cpxml_string, debug=True)
 
     # Create integrator and context.
-    platform_name = 'CUDA'
+    platform_name = 'CPU'
     platform = openmm.Platform.getPlatformByName(platform_name)
     integrator = openmm.LangevinIntegrator(temperature, collision_rate, timestep)
     context = openmm.Context(system, integrator, platform)
@@ -899,4 +926,7 @@ if __name__ == "__main__":
             print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
 
     else:
-        ref_e_list = mc_titration.calibrate(context)
+        cpxml_out = mc_titration.calibrate(context,'pxyl')
+        outfile = open('cpxml_out.xml', 'w')
+        outfile.writelines(cpxml_out)
+        outfile.close()
