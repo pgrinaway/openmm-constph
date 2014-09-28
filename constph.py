@@ -160,7 +160,10 @@ class MonteCarloTitration(object):
             if force.__class__.__name__ in force_classes_to_update:
                 self.forces_to_update.append(force)            
 
-        if cpin_filename
+        if cpxml_string:
+            self._register_titratable_groups(cpxml_string)
+
+        elif cpin_filename:
             # Load AMBER cpin file defining protonation states.
             if cpin_filename:
                 namelist = self._parse_fortran_namelist(cpin_filename, 'CNSTPH')
@@ -204,8 +207,7 @@ class MonteCarloTitration(object):
                 # Set default state for this group.
                 self.setTitrationState(group_index, namelist['RESSTATE'][group_index])
 
-            elif cpxml_string is not None:
-                _register_titratable_groups(cpxml_string)
+
 
 
         self.setNumAttemptsPerUpdate(nattempts_per_update)
