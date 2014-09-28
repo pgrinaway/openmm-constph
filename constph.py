@@ -55,10 +55,12 @@ import math
 import random
 import copy
 import time
+import lxml.etree as etree
 
 import simtk
 import simtk.openmm as openmm
 import simtk.unit as units
+import simtk.openmm.app as app
 
 #=============================================================================================
 # MODULE CONSTANTS
@@ -97,7 +99,7 @@ class MonteCarloTitration(object):
     # Initialization.
     #=============================================================================================
 
-    def __init__(self, system, temperature, pH, prmtop, cpin_filename, nattempts_per_update=None, simultaneous_proposal_probability=0.1, debug=False):
+    def __init__(self, system, temperature, pH, prmtop, cpin_filename=None, cpxml_string=None, nattempts_per_update=None, simultaneous_proposal_probability=0.1, debug=False):
         """
         Initialize a Monte Carlo titration driver for constant pH simulation.
 
@@ -107,7 +109,8 @@ class MonteCarloTitration(object):
         temperature (simtk.unit.Quantity compatible with simtk.unit.kelvin) - temperature to be simulated
         pH (float) - the pH to be simulated 
         prmtop (Prmtop) - parsed AMBER 'prmtop' file (necessary to provide information on exclusions)
-        cpin_filename (string) - AMBER 'cpin' file defining protonation charge states and energies
+        cpin_filename (string, optional*) - AMBER 'cpin' file defining protonation charge states and energies
+        cpxml_string (string, optional* - cpxml input string-- can be used in place of cpin_filename
 
         OPTIONAL ARGUMENTS
         
@@ -132,6 +135,7 @@ class MonteCarloTitration(object):
         self.pH = pH
         self.cpin_filename = cpin_filename
         self.debug = debug
+        self._topology = prmtop.topology
 
         # Initialize titration group records.
         self.titrationGroups = list()
@@ -156,9 +160,12 @@ class MonteCarloTitration(object):
             if force.__class__.__name__ in force_classes_to_update:
                 self.forces_to_update.append(force)            
 
-        if cpin_filename:
+        if cpin_filename
             # Load AMBER cpin file defining protonation states.
-            namelist = self._parse_fortran_namelist(cpin_filename, 'CNSTPH')
+            if cpin_filename:
+                namelist = self._parse_fortran_namelist(cpin_filename, 'CNSTPH')
+            else:
+                namelist = self._parse_cpxml(cpxml_string)
 
             # Make sure RESSTATE is a list.
             if type(namelist['RESSTATE'])==int:
@@ -197,12 +204,57 @@ class MonteCarloTitration(object):
                 # Set default state for this group.
                 self.setTitrationState(group_index, namelist['RESSTATE'][group_index])
 
+            elif cpxml_string is not None:
+                _register_titratable_groups(cpxml_string)
+
+
         self.setNumAttemptsPerUpdate(nattempts_per_update)
 
         # Reset statistics.
         self.resetStatistics()
                 
         return
+
+
+    def _register_titratable_groups(self, cpxml):
+        """
+        Accepts a constant pH xml, and uses the loaded prmtop to identify
+        where titratable groups are and add data as needed
+
+        Parameters
+        ---------
+
+        """
+        #get a copy of the topology, load in the xml
+        top = copy.deepcopy(self._topology)
+        xmlroot = etree.fromstring(cpxml).getroot()
+        list_of_titratables = xmlroot.xpath(u'//TitratableResidue/@Name')
+        if list_of_titratables == []:
+            return
+
+        #iterate through the residues in the topology, keeping track of added groups
+        group_index = 0
+        for res in top.residues():
+            if res in list_of_titratables:
+                atom_indices = [atm.index for atm in res.atoms()]
+                self.addTitratableGroup(atom_indices)
+                res_info  =xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']' % res)[0]
+                for titration_state in xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']/States/State'):
+                    charges = [float(chargexml.attrib['charge']) for chargexml in titration_state.getchildren()]
+                    charges = units.Quantity(charges, units.elementary_charge)
+                    relative_energy = float(titration_state.attrib['igb2']) #in the future add options for other models
+                    pKref = 0.0
+                    proton_count = int(titration_state.attrib['proton_count'])
+                    self.addTitrationState(group_index, pKref, relative_energy, charges, proton_count)
+                group_index += 1
+
+
+
+
+
+
+
+
 
     def get14scaling(self, system):
         """
@@ -365,6 +417,7 @@ class MonteCarloTitration(object):
             namelist[name] = value
 
         return namelist
+
 
 
     #=============================================================================================

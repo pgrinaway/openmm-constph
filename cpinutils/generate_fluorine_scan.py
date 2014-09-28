@@ -4,7 +4,7 @@ import openeye.oechem as oechem
 import openeye.oeiupac as oeiupac
 import openeye.oeomega as oeomega
 import openeye.oequacpac as oequacpac
-import openeye.oegrapheme as oegrapheme
+import lxml.etree as etree
 import copy
 
 
@@ -101,28 +101,101 @@ def generate_charges(mol_to_charge, charge_model=oequacpac.OECharges_AM1BCCSym):
 
 
 
+def generate_res_cpxml(res_name, mol, chargelist, ref_energies=None, pKa=7.0):
+    """
+    Generates a new xml file containing relevant information for doing an expanded ensemble
+    fluorine scan using constant pH code. Intended to replace the cpin namelist format.
+    Will generate 0 ref energies if provided with none.
+
+    Parameters
+    ----------
+    res_name : String
+        The name of the residue to include in the parameter file
+    mol : OEMol
+        An OEMol object containing the original molecule
+    chargelist : list of lists of float
+        Each inner list contains a list of the updated charges for its respective state
+    ref_energies : list of dicts (optional)
+        List of dicts, with each dict containing the reference energy for that state. If None,
+        all reference energies are set to 0 for igb2.
+
+    Returns
+    ------
+    res_cpxml : String
+        String containing the xml format needed to generate a cpin (and soon cpxml)
+        as input to constant pH simulation
+    """
+    cpxml_root = etree.Element("ConstantpH")
+    res_element = etree.SubElement(cpxml_root,"TitratableResidue")
+    res_element.set("Name", res_name)
+    res_element.set("pKa", str(pKa))
+    atom_names = [atom.GetName() for atom in mol.GetAtoms()]
+    print(len(atom_names))
+    atom_list = etree.SubElement(res_element,"Atoms")
+    for atom in atom_names:
+        atm_element = etree.SubElement(atom_list, "Atom")
+        atm_element.set("Name", atom)
+    state_list = etree.SubElement(res_element, 'States')
+    for idx, charge_states in enumerate(chargelist):
+        state = etree.SubElement(state_list,"State")
+        state.set("proton_count","1") #this will be changed soon.
+        if ref_energies:
+            state_ref_energies = ref_energies[idx]
+            for key in state_ref_energies.iterkeys():
+                state.set(key, str(state_ref_energies[key]))
+        else:
+            state.set("igb2", "0")
+        for idx2, charge in enumerate(charge_states):
+            charge_element = etree.SubElement(state, "charge")
+            charge_element.set("AtomName", atom_names[idx2])
+            charge_element.set("charge", str(charge))
+    return etree.tostring(res_element, pretty_print=True)
+
+
+
+
+
+def _set_reference_energies(cpxml_string):
+    """
+    Sets the reference energies of the various states in the cpxml file
+    using point energies of a minimized conformation.
+
+    Parameters
+    ----------
+    cpxml_string : String
+        String containing the cpxml of the residue (currently only one
+        residue per file; will change soon)
+
+    Returns
+    -------
+    calibrated_cpxml : String
+        String containing the calibrated cpxml
+
+    """
+    import constph
+
+
+
+
+
+
 
 if __name__ == "__main__":
 
-    mol = _read_mol2('/Users/grinawap/px.mol2')
+    mol = _read_mol2('../ligand.tripos.mol2')
     atom_names = [atom.GetName() for atom in mol.GetAtoms()]
     fluorinated_list = generate_fluorinated_mols(mol)
-    p_charge_molecules = [generate_charges(molecule) for molecule in fluorinated_list]
+    molecule_list = [mol]
+    for molecule in fluorinated_list:
+        molecule_list.append(molecule)
+    p_charge_molecules = [generate_charges(molecule) for molecule in molecule_list]
 
     #iterate through the charges and write them out:
     chargelist = []
     for molecule in p_charge_molecules:
         chargelist.append([atom.GetPartialCharge() for atom in molecule.GetAtoms()])
-    outstring = ""
-    i=1
-    for charges in chargelist:
-        outstring+=_generate_charge_python(charges, "ref_ene%d"%i)
-        i+=1
-    name_list = _atom_name_list(atom_names)
-    name_list+=outstring
-    outf = open('ex_ens.py','w')
-    outf.writelines(name_list)
+    resxml = generate_res_cpxml('pxyl',mol,chargelist)
+    outf = open('cpxml_3.xml','w')
+    outf.writelines(resxml)
     outf.close()
-
-
 
