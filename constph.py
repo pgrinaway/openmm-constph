@@ -836,7 +836,7 @@ class MonteCarloTitration(object):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-    run_dynamics = False
+    run_dynamics = True
     
     #
     # Test with an example from the Amber 11 distribution.
@@ -855,9 +855,9 @@ if __name__ == "__main__":
     #inpcrd_filename = 'amber-example/min.x'
     #cpin_filename = 'amber-example/cpin'
 
-    prmtop_filename = 't4_ex/ligand.prmtop'
-    inpcrd_filename = 't4_ex/ligand.inpcrd'
-    cpxml_filename = 't4_ex/cpxml_3.xml'
+    prmtop_filename = 't4_ex/complex.prmtop'
+    inpcrd_filename = 't4_ex/complex.inpcrd'
+    cpxml_filename = 't4_ex/cpxml_out.xml'
 
     # Calibration on a terminally-blocked amino acid in implicit solvent
     #prmtop_filename = 'calibration-implicit/tyr.prmtop'
