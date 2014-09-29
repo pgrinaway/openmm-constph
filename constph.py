@@ -254,7 +254,7 @@ class MonteCarloTitration(object):
                 group_index += 1
         print "there are now %d titration groups" % self.getNumTitratableGroups()
         for groups in range(self.getNumTitratableGroups()):
-            self.setTitrationState(groups,0)
+            self.setTitrationState(groups,9)
 
 
 
@@ -905,15 +905,20 @@ if __name__ == "__main__":
     potential_energy = state.getPotentialEnergy()
     print "Initial protonation states: %s   %12.3f kcal/mol" % (str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole)
     fluorine_state_list = []
+    traj_file = open('fluorinescan_out.pdb','w')
+    app.PDBFile.writeHeader(prmtop.topology, traj_file)
     if run_dynamics:
         for iteration in range(niterations):
             # Run some dynamics.
             initial_time = time.time()
             integrator.step(nsteps)
-            state = context.getState(getEnergy=True)
+            state = context.getState(getEnergy=True, getPositions=True)
             final_time = time.time()
             elapsed_time = final_time - initial_time
             print "  %.3f s elapsed for %d steps of dynamics" % (elapsed_time, nsteps)
+
+            #write out the trajectory
+            app.PDBFile.writeModel(prmtop.topology, state.getPositions(),file=traj_file, modelIndex=iteration)
 
             # Attempt protonation state changes.
             initial_time = time.time()
@@ -928,6 +933,8 @@ if __name__ == "__main__":
             potential_energy = state.getPotentialEnergy()
             print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
             fluorine_state_list.append(mc_titration.getTitrationStates()[0])
+        app.PDBFile.writeFooter(prmtop.topology, file=traj_file)
+        traj_file.close()
         fl_array = np.array(fluorine_state_list)
         np.savetxt('fluorine_pxylene_array.dat',fl_array)
 
