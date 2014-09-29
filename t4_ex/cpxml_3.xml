@@ -1,0 +1,244 @@
+<TitratableResidue Name="pxyl" pKa="7.0">
+  <Atoms>
+    <Atom Name="C1"/>
+    <Atom Name="C2"/>
+    <Atom Name="C3"/>
+    <Atom Name="C4"/>
+    <Atom Name="C5"/>
+    <Atom Name="C6"/>
+    <Atom Name="C7"/>
+    <Atom Name="C8"/>
+    <Atom Name="H1"/>
+    <Atom Name="H2"/>
+    <Atom Name="H3"/>
+    <Atom Name="H4"/>
+    <Atom Name="H5"/>
+    <Atom Name="H6"/>
+    <Atom Name="H7"/>
+    <Atom Name="H8"/>
+    <Atom Name="H9"/>
+    <Atom Name="H10"/>
+  </Atoms>
+  <States>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.127259999514"/>
+      <charge AtomName="C2" charge="-0.127179995179"/>
+      <charge AtomName="C3" charge="-0.127179995179"/>
+      <charge AtomName="C4" charge="-0.127179995179"/>
+      <charge AtomName="C5" charge="-0.0817599967122"/>
+      <charge AtomName="C6" charge="-0.0817599967122"/>
+      <charge AtomName="C7" charge="-0.0527499988675"/>
+      <charge AtomName="C8" charge="-0.0527499988675"/>
+      <charge AtomName="H1" charge="0.129820004106"/>
+      <charge AtomName="H2" charge="0.129820004106"/>
+      <charge AtomName="H3" charge="0.129820004106"/>
+      <charge AtomName="H4" charge="0.129820004106"/>
+      <charge AtomName="H5" charge="0.0430900007486"/>
+      <charge AtomName="H6" charge="0.0430900007486"/>
+      <charge AtomName="H7" charge="0.0430900007486"/>
+      <charge AtomName="H8" charge="0.0430900007486"/>
+      <charge AtomName="H9" charge="0.0430900007486"/>
+      <charge AtomName="H10" charge="0.0430900007486"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="0.124889999628"/>
+      <charge AtomName="C2" charge="-0.165389999747"/>
+      <charge AtomName="C3" charge="-0.105700001121"/>
+      <charge AtomName="C4" charge="-0.141819998622"/>
+      <charge AtomName="C5" charge="-0.112309999764"/>
+      <charge AtomName="C6" charge="-0.0558100007474"/>
+      <charge AtomName="C7" charge="-0.0531399995089"/>
+      <charge AtomName="C8" charge="-0.0557300001383"/>
+      <charge AtomName="H1" charge="-0.142350003123"/>
+      <charge AtomName="H2" charge="0.146569997072"/>
+      <charge AtomName="H3" charge="0.135800004005"/>
+      <charge AtomName="H4" charge="0.135309994221"/>
+      <charge AtomName="H5" charge="0.0494100004435"/>
+      <charge AtomName="H6" charge="0.0494100004435"/>
+      <charge AtomName="H7" charge="0.0494100004435"/>
+      <charge AtomName="H8" charge="0.0471500009298"/>
+      <charge AtomName="H9" charge="0.0471500009298"/>
+      <charge AtomName="H10" charge="0.0471500009298"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.165250003338"/>
+      <charge AtomName="C2" charge="0.124700002372"/>
+      <charge AtomName="C3" charge="-0.141729995608"/>
+      <charge AtomName="C4" charge="-0.105230003595"/>
+      <charge AtomName="C5" charge="-0.0566500015557"/>
+      <charge AtomName="C6" charge="-0.11223000288"/>
+      <charge AtomName="C7" charge="-0.0556199997663"/>
+      <charge AtomName="C8" charge="-0.053630001843"/>
+      <charge AtomName="H1" charge="0.146160006523"/>
+      <charge AtomName="H2" charge="-0.142159998417"/>
+      <charge AtomName="H3" charge="0.135680004954"/>
+      <charge AtomName="H4" charge="0.135890007019"/>
+      <charge AtomName="H5" charge="0.0470700003207"/>
+      <charge AtomName="H6" charge="0.0470700003207"/>
+      <charge AtomName="H7" charge="0.0470700003207"/>
+      <charge AtomName="H8" charge="0.0496199987829"/>
+      <charge AtomName="H9" charge="0.0496199987829"/>
+      <charge AtomName="H10" charge="0.0496199987829"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.105769999325"/>
+      <charge AtomName="C2" charge="-0.142810001969"/>
+      <charge AtomName="C3" charge="0.124519996345"/>
+      <charge AtomName="C4" charge="-0.164519995451"/>
+      <charge AtomName="C5" charge="-0.112290002406"/>
+      <charge AtomName="C6" charge="-0.0555099993944"/>
+      <charge AtomName="C7" charge="-0.0525900013745"/>
+      <charge AtomName="C8" charge="-0.0555600002408"/>
+      <charge AtomName="H1" charge="0.136329993606"/>
+      <charge AtomName="H2" charge="0.134299993515"/>
+      <charge AtomName="H3" charge="-0.143629997969"/>
+      <charge AtomName="H4" charge="0.147159993649"/>
+      <charge AtomName="H5" charge="0.0496699996293"/>
+      <charge AtomName="H6" charge="0.0496699996293"/>
+      <charge AtomName="H7" charge="0.0496699996293"/>
+      <charge AtomName="H8" charge="0.0471200011671"/>
+      <charge AtomName="H9" charge="0.0471200011671"/>
+      <charge AtomName="H10" charge="0.0471200011671"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.142590001225"/>
+      <charge AtomName="C2" charge="-0.105820000172"/>
+      <charge AtomName="C3" charge="-0.164660006762"/>
+      <charge AtomName="C4" charge="0.124820001423"/>
+      <charge AtomName="C5" charge="-0.0561299994588"/>
+      <charge AtomName="C6" charge="-0.112080000341"/>
+      <charge AtomName="C7" charge="-0.055530000478"/>
+      <charge AtomName="C8" charge="-0.0526399984956"/>
+      <charge AtomName="H1" charge="0.134220004082"/>
+      <charge AtomName="H2" charge="0.136360004544"/>
+      <charge AtomName="H3" charge="0.146960005164"/>
+      <charge AtomName="H4" charge="-0.143370002508"/>
+      <charge AtomName="H5" charge="0.0472000017762"/>
+      <charge AtomName="H6" charge="0.0472000017762"/>
+      <charge AtomName="H7" charge="0.0472000017762"/>
+      <charge AtomName="H8" charge="0.0496199987829"/>
+      <charge AtomName="H9" charge="0.0496199987829"/>
+      <charge AtomName="H10" charge="0.0496199987829"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.102410003543"/>
+      <charge AtomName="C2" charge="-0.134440004826"/>
+      <charge AtomName="C3" charge="-0.102410003543"/>
+      <charge AtomName="C4" charge="-0.134440004826"/>
+      <charge AtomName="C5" charge="-0.137400001287"/>
+      <charge AtomName="C6" charge="-0.0647900030017"/>
+      <charge AtomName="C7" charge="0.209299996495"/>
+      <charge AtomName="C8" charge="-0.0566999986768"/>
+      <charge AtomName="H1" charge="0.134470000863"/>
+      <charge AtomName="H2" charge="0.133509993553"/>
+      <charge AtomName="H3" charge="0.134470000863"/>
+      <charge AtomName="H4" charge="0.133509993553"/>
+      <charge AtomName="H5" charge="-0.241819992661"/>
+      <charge AtomName="H6" charge="0.0452300012112"/>
+      <charge AtomName="H7" charge="0.0452300012112"/>
+      <charge AtomName="H8" charge="0.0462299995124"/>
+      <charge AtomName="H9" charge="0.0462299995124"/>
+      <charge AtomName="H10" charge="0.0462299995124"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.11005000025"/>
+      <charge AtomName="C2" charge="-0.130779996514"/>
+      <charge AtomName="C3" charge="-0.11005000025"/>
+      <charge AtomName="C4" charge="-0.130779996514"/>
+      <charge AtomName="C5" charge="-0.132939994335"/>
+      <charge AtomName="C6" charge="-0.0697500035167"/>
+      <charge AtomName="C7" charge="0.208820000291"/>
+      <charge AtomName="C8" charge="-0.0558199994266"/>
+      <charge AtomName="H1" charge="0.13669000566"/>
+      <charge AtomName="H2" charge="0.133410006762"/>
+      <charge AtomName="H3" charge="0.13669000566"/>
+      <charge AtomName="H4" charge="0.133410006762"/>
+      <charge AtomName="H5" charge="0.0483000017703"/>
+      <charge AtomName="H6" charge="-0.242489993572"/>
+      <charge AtomName="H7" charge="0.0483000017703"/>
+      <charge AtomName="H8" charge="0.0456800013781"/>
+      <charge AtomName="H9" charge="0.0456800013781"/>
+      <charge AtomName="H10" charge="0.0456800013781"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.109489999712"/>
+      <charge AtomName="C2" charge="-0.130740001798"/>
+      <charge AtomName="C3" charge="-0.109489999712"/>
+      <charge AtomName="C4" charge="-0.130740001798"/>
+      <charge AtomName="C5" charge="-0.134029999375"/>
+      <charge AtomName="C6" charge="-0.0705500021577"/>
+      <charge AtomName="C7" charge="0.207760006189"/>
+      <charge AtomName="C8" charge="-0.0557200014591"/>
+      <charge AtomName="H1" charge="0.138109996915"/>
+      <charge AtomName="H2" charge="0.133049994707"/>
+      <charge AtomName="H3" charge="0.138109996915"/>
+      <charge AtomName="H4" charge="0.133049994707"/>
+      <charge AtomName="H5" charge="0.0484800003469"/>
+      <charge AtomName="H6" charge="0.0484800003469"/>
+      <charge AtomName="H7" charge="-0.243230000138"/>
+      <charge AtomName="H8" charge="0.0456500016153"/>
+      <charge AtomName="H9" charge="0.0456500016153"/>
+      <charge AtomName="H10" charge="0.0456500016153"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.134149998426"/>
+      <charge AtomName="C2" charge="-0.102389998734"/>
+      <charge AtomName="C3" charge="-0.134149998426"/>
+      <charge AtomName="C4" charge="-0.102389998734"/>
+      <charge AtomName="C5" charge="-0.0645899996161"/>
+      <charge AtomName="C6" charge="-0.138070002198"/>
+      <charge AtomName="C7" charge="-0.0566000007093"/>
+      <charge AtomName="C8" charge="0.208949998021"/>
+      <charge AtomName="H1" charge="0.1331499964"/>
+      <charge AtomName="H2" charge="0.134959995747"/>
+      <charge AtomName="H3" charge="0.1331499964"/>
+      <charge AtomName="H4" charge="0.134959995747"/>
+      <charge AtomName="H5" charge="0.0461000017822"/>
+      <charge AtomName="H6" charge="0.0461000017822"/>
+      <charge AtomName="H7" charge="0.0461000017822"/>
+      <charge AtomName="H8" charge="-0.243049994111"/>
+      <charge AtomName="H9" charge="0.0459600016475"/>
+      <charge AtomName="H10" charge="0.0459600016475"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.130799993873"/>
+      <charge AtomName="C2" charge="-0.110019996762"/>
+      <charge AtomName="C3" charge="-0.130799993873"/>
+      <charge AtomName="C4" charge="-0.110019996762"/>
+      <charge AtomName="C5" charge="-0.0694599971175"/>
+      <charge AtomName="C6" charge="-0.132829993963"/>
+      <charge AtomName="C7" charge="-0.0558100007474"/>
+      <charge AtomName="C8" charge="0.208189994097"/>
+      <charge AtomName="H1" charge="0.133169993758"/>
+      <charge AtomName="H2" charge="0.136840000749"/>
+      <charge AtomName="H3" charge="0.133169993758"/>
+      <charge AtomName="H4" charge="0.136840000749"/>
+      <charge AtomName="H5" charge="0.0456099994481"/>
+      <charge AtomName="H6" charge="0.0456099994481"/>
+      <charge AtomName="H7" charge="0.0456099994481"/>
+      <charge AtomName="H8" charge="0.0490299984813"/>
+      <charge AtomName="H9" charge="-0.243359997869"/>
+      <charge AtomName="H10" charge="0.0490299984813"/>
+    </State>
+    <State proton_count="1" igb2="0">
+      <charge AtomName="C1" charge="-0.130869999528"/>
+      <charge AtomName="C2" charge="-0.10990999639"/>
+      <charge AtomName="C3" charge="-0.130869999528"/>
+      <charge AtomName="C4" charge="-0.10990999639"/>
+      <charge AtomName="C5" charge="-0.0700599998236"/>
+      <charge AtomName="C6" charge="-0.133230000734"/>
+      <charge AtomName="C7" charge="-0.0556199997663"/>
+      <charge AtomName="C8" charge="0.207479998469"/>
+      <charge AtomName="H1" charge="0.132569998503"/>
+      <charge AtomName="H2" charge="0.138410001993"/>
+      <charge AtomName="H3" charge="0.132569998503"/>
+      <charge AtomName="H4" charge="0.138410001993"/>
+      <charge AtomName="H5" charge="0.0456399992108"/>
+      <charge AtomName="H6" charge="0.0456399992108"/>
+      <charge AtomName="H7" charge="0.0456399992108"/>
+      <charge AtomName="H8" charge="0.0486299991608"/>
+      <charge AtomName="H9" charge="0.0486299991608"/>
+      <charge AtomName="H10" charge="-0.243149995804"/>
+    </State>
+  </States>
+</TitratableResidue>
