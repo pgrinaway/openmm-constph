@@ -231,7 +231,6 @@ class MonteCarloTitration(object):
         cpxml = self.cpxml_string
         xmlroot = etree.fromstring(cpxml)
         list_of_titratables = xmlroot.xpath(u'//TitratableResidue/@Name')
-        print str(list_of_titratables)
         if list_of_titratables == []:
             return
 
@@ -248,11 +247,9 @@ class MonteCarloTitration(object):
                     charges = units.Quantity(charges, units.elementary_charge)
                     relative_energy = float(titration_state.attrib['igb2']) #in the future add options for other models
                     pKref = 0.0
-                    print "adding state"
                     proton_count = int(titration_state.attrib['proton_count'])
                     self.addTitrationState(group_index, pKref, relative_energy, charges, proton_count)
                 group_index += 1
-        print "there are now %d titration groups" % self.getNumTitratableGroups()
         for groups in range(self.getNumTitratableGroups()):
             self.setTitrationState(groups,9)
 
