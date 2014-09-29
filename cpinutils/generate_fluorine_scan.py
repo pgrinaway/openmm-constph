@@ -155,16 +155,25 @@ def generate_res_cpxml(res_name, mol, chargelist, ref_energies=None, pKa=7.0):
 
 
 
-def _set_reference_energies(cpxml_string):
+def _set_reference_energies(cpxml_string, prmtop_file, inpcrd_file, platform_name='CPU'):
     """
     Sets the reference energies of the various states in the cpxml file
-    using point energies of a minimized conformation.
+    using point energies of a minimized conformation. Residue name is retrieved from the
+    prmtop
 
     Parameters
     ----------
     cpxml_string : String
         String containing the cpxml of the residue (currently only one
-        residue per file; will change soon)
+        residue per file)
+    prmtop_file : String
+        String containing name of prmtop file for only ligand
+    inpcrd_file : String
+        String containing name of inpcrd file for only ligand
+    platform_name : String, optional
+        Name of platform to use. Default CPU
+
+
 
     Returns
     -------
@@ -173,6 +182,45 @@ def _set_reference_energies(cpxml_string):
 
     """
     import constph
+    import simtk.openmm.app as app
+    import simtk.openmm as openmm
+    import simtk.unit as units
+
+
+    #load in the prmtop and inpcrd
+    inpcrd = app.AmberInpcrdFile(inpcrd_file)
+    prmtop = app.AmberPrmtopFile(prmtop_file)
+    system = prmtop.createSystem(implicitSolvent=app.OBC2, nonbondedMethod=app.NoCutoff, constraints=app.HBonds)
+
+    top = prmtop.topology
+    res_list = [res.name for res in top.residues()]
+    if len(res_list)!=1:
+        raise Exception("This method requires a prmtop with one residue at the moment")
+    residue_name = res_list[0]
+
+    #set some parameters
+    temperature = 300.0 * units.kelvin
+    timestep = 1.0 * units.femtoseconds
+    collision_rate = 9.1 / units.picoseconds
+    pH = 7.0
+
+    #start the MonteCarloTitration object
+    mc_titration = constph.MonteCarloTitration(system, temperature, pH, prmtop, cpxml_string=cpxml_string, debug=True)
+
+    platform = openmm.Platform.getPlatformByName(platform_name)
+    integrator = openmm.LangevinIntegrator(temperature, collision_rate, timestep)
+    context = openmm.Context(system, integrator, platform)
+    context.setPositions(inpcrd.getPositions())
+
+    # Minimize energy.
+    print "Minimizing energy..."
+    openmm.LocalEnergyMinimizer.minimize(context, 10.0)
+
+    #get the calibrated xml
+    calibrated_cpxml = mc_titration.calibrate(context,residue_name)
+
+    return calibrated_cpxml
+
 
 
 
@@ -181,21 +229,39 @@ def _set_reference_energies(cpxml_string):
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="This is a tool for generating xml files to run expanded-ensemble fluorine scans")
+    parser.add_argument('--molecule', dest='molecule', type=str, help='The tripos mol2 molecule to use to generate fluorine scans')
+    parser.add_argument('--molecule-name', dest='molecule_name', type=str, help='The name of the molecule. Default MOL to match antechamber', default='MOL')
+    parser.add_argument('--cpxml-out', dest='cpxml_out', type=str, help='The name of the xml output', default='fluorine_ligand_out.xml')
+    parser.add_argument('--calibrated-out', dest='calibrated_out', help='(optional) name of the calibrated output xml')
+    parser.add_argument('--prmtop', dest='prmtop', help='ligand-only prmtop for calibration')
+    parser.add_argument('--inpcrd', dest='inpcrd', help='ligand-only inpcrd for calibration')
+    args = parser.parse_args()
 
-    mol = _read_mol2('../ligand.tripos.mol2')
+    mol = _read_mol2(args.molecule)
     atom_names = [atom.GetName() for atom in mol.GetAtoms()]
     fluorinated_list = generate_fluorinated_mols(mol)
     molecule_list = [mol]
+
     for molecule in fluorinated_list:
         molecule_list.append(molecule)
     p_charge_molecules = [generate_charges(molecule) for molecule in molecule_list]
 
-    #iterate through the charges and write them out:
     chargelist = []
     for molecule in p_charge_molecules:
         chargelist.append([atom.GetPartialCharge() for atom in molecule.GetAtoms()])
-    resxml = generate_res_cpxml('pxyl',mol,chargelist)
-    outf = open('cpxml_3.xml','w')
+    resxml = generate_res_cpxml(args.molecule_name,mol,chargelist)
+    outf = open(args.cpxml_out,'w')
     outf.writelines(resxml)
     outf.close()
+
+    if args.calibrated_out:
+        if not args.prmtop or not args.inpcrd:
+            raise Exception
+        calibrated_xml = _set_reference_energies(resxml, args.prmtop, args.inpcrd)
+        calibrated_outfile = open(args.calibrated_out,'w')
+        calibrated_outfile.writelines(calibrated_xml)
+        calibrated_outfile.close()
+
 
