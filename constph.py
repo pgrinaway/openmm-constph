@@ -856,8 +856,8 @@ if __name__ == "__main__":
     #inpcrd_filename = 'amber-example/min.x'
     #cpin_filename = 'amber-example/cpin'
 
-    prmtop_filename = 't4_ex/ligand.prmtop'
-    inpcrd_filename = 't4_ex/ligand.inpcrd'
+    prmtop_filename = 't4_ex/complex.prmtop'
+    inpcrd_filename = 't4_ex/complex.inpcrd'
     cpxml_filename = 't4_ex/cpxml_out.xml'
 
     # Calibration on a terminally-blocked amino acid in implicit solvent
@@ -889,7 +889,7 @@ if __name__ == "__main__":
     mc_titration = MonteCarloTitration(system, temperature, pH, prmtop, cpxml_string=cpxml_string, debug=True)
 
     # Create integrator and context.
-    platform_name = 'CPU'
+    platform_name = 'CUDA'
     platform = openmm.Platform.getPlatformByName(platform_name)
     integrator = openmm.LangevinIntegrator(temperature, collision_rate, timestep)
     context = openmm.Context(system, integrator, platform)
