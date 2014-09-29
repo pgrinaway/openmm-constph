@@ -795,7 +795,7 @@ class MonteCarloTitration(object):
             pKref = titration_state['pKref']
             proton_count = titration_state['proton_count']
             relative_energy = titration_state['relative_energy']
-            u_units = (beta * relative_energy).unit
+            
             #print "proton_count = %d | pH = %.1f | pKref = %.1f | %.1f | %.1f | beta*relative_energy = %.1f" % (proton_count, self.pH, pKref, -beta*total_energy , - proton_count * (self.pH - pKref) * math.log(10), +beta*relative_energy)
             log_P += - proton_count * (self.pH - pKref) * math.log(10) + (beta * relative_energy)
             
