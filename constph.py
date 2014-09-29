@@ -798,8 +798,9 @@ class MonteCarloTitration(object):
             pKref = titration_state['pKref']
             proton_count = titration_state['proton_count']
             relative_energy = titration_state['relative_energy']
-            print "proton_count = %d | pH = %.1f | pKref = %.1f | %.1f | %.1f | beta*relative_energy = %.1f" % (proton_count, self.pH, pKref, -beta*total_energy , - proton_count * (self.pH - pKref) * math.log(10), +beta*relative_energy)
-            log_P += - proton_count * (self.pH - pKref) * math.log(10) + beta * relative_energy 
+            u_units = (beta * relative_energy).unit
+            #print "proton_count = %d | pH = %.1f | pKref = %.1f | %.1f | %.1f | beta*relative_energy = %.1f" % (proton_count, self.pH, pKref, -beta*total_energy , - proton_count * (self.pH - pKref) * math.log(10), +beta*relative_energy)
+            log_P += - proton_count * (self.pH - pKref) * math.log(10) + (beta * relative_energy) / u_units
             
         # Return the log probability.
         return log_P
@@ -855,8 +856,8 @@ if __name__ == "__main__":
     #inpcrd_filename = 'amber-example/min.x'
     #cpin_filename = 'amber-example/cpin'
 
-    prmtop_filename = 't4_ex/complex.prmtop'
-    inpcrd_filename = 't4_ex/complex.inpcrd'
+    prmtop_filename = 't4_ex/ligand.prmtop'
+    inpcrd_filename = 't4_ex/ligand.inpcrd'
     cpxml_filename = 't4_ex/cpxml_out.xml'
 
     # Calibration on a terminally-blocked amino acid in implicit solvent
