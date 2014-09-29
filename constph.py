@@ -245,7 +245,7 @@ class MonteCarloTitration(object):
                 for titration_state in xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']/States/State' % res.name):
                     charges = [float(chargexml.attrib['charge']) for chargexml in titration_state.getchildren()]
                     charges = units.Quantity(charges, units.elementary_charge)
-                    relative_energy = float(titration_state.attrib['igb2']) #in the future add options for other models
+                    relative_energy = float(titration_state.attrib['igb2']) * units.kilocalories_per_mole
                     pKref = 0.0
                     proton_count = int(titration_state.attrib['proton_count'])
                     self.addTitrationState(group_index, pKref, relative_energy, charges, proton_count)
@@ -679,13 +679,13 @@ class MonteCarloTitration(object):
             print str(state)
             self.setTitrationState(0,state,context=context)
             state = context.getState(getEnergy=True)
-            energy_list.append(state.getPotentialEnergy())
+            energy_list.append(state.getPotentialEnergy().in_units_of)
         if self.cpxml_string:
             cpxml_copy = copy.deepcopy(self.cpxml_string)
             xmlroot = etree.fromstring(cpxml_copy)
             print "the length of the energy list is %d" % len(energy_list)
             for index, titration_state in enumerate(xmlroot.xpath(u'//TitratableResidue[@Name=\'%s\']/States/State' % residue_to_calibrate)):
-                titration_state.attrib['igb2']=str(energy_list[index]/energy_list[index].unit)
+                titration_state.attrib['igb2']=str(energy_list[index].value_in_unit(units.kilocalories_per_mole))
             return etree.tostring(xmlroot, pretty_print=True)
         else:
             return energy_list
@@ -797,7 +797,7 @@ class MonteCarloTitration(object):
             relative_energy = titration_state['relative_energy']
             u_units = (beta * relative_energy).unit
             #print "proton_count = %d | pH = %.1f | pKref = %.1f | %.1f | %.1f | beta*relative_energy = %.1f" % (proton_count, self.pH, pKref, -beta*total_energy , - proton_count * (self.pH - pKref) * math.log(10), +beta*relative_energy)
-            log_P += - proton_count * (self.pH - pKref) * math.log(10) + (beta * relative_energy) / u_units
+            log_P += - proton_count * (self.pH - pKref) * math.log(10) + (beta * relative_energy)
             
         # Return the log probability.
         return log_P
