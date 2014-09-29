@@ -878,6 +878,7 @@ if __name__ == "__main__":
     
     # Load the AMBER system.
     import simtk.openmm.app as app
+    import numpy as np
     print "Creating AMBER system..."
     inpcrd = app.AmberInpcrdFile(inpcrd_filename)
     prmtop = app.AmberPrmtopFile(prmtop_filename)
@@ -903,6 +904,7 @@ if __name__ == "__main__":
     state = context.getState(getEnergy=True)
     potential_energy = state.getPotentialEnergy()
     print "Initial protonation states: %s   %12.3f kcal/mol" % (str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole)
+    fluorine_state_list = []
     if run_dynamics:
         for iteration in range(niterations):
             # Run some dynamics.
@@ -925,7 +927,9 @@ if __name__ == "__main__":
             state = context.getState(getEnergy=True)
             potential_energy = state.getPotentialEnergy()
             print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
-
+            fluorine_state_list.append(mc_titration.getTitrationState(0))
+    fl_array = np.array(fluorine_state_list)
+    np.savetxt('fluorine_pxylene_array.dat',fl_array)
     else:
         cpxml_out = mc_titration.calibrate(context,'pxyl')
         outfile = open('cpxml_out.xml', 'w')
