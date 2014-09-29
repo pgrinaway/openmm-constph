@@ -837,7 +837,7 @@ class MonteCarloTitration(object):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-    run_dynamics = True
+
     
     #
     # Test with an example from the Amber 11 distribution.
@@ -899,7 +899,7 @@ if __name__ == "__main__":
     print "Minimizing energy..."
     openmm.LocalEnergyMinimizer.minimize(context, 10.0)
 
-    ref_e_list = []
+
     # Run dynamics.
     state = context.getState(getEnergy=True)
     potential_energy = state.getPotentialEnergy()
@@ -907,39 +907,33 @@ if __name__ == "__main__":
     fluorine_state_list = []
     traj_file = open('fluorinescan_out.pdb','w')
     app.PDBFile.writeHeader(prmtop.topology, traj_file)
-    if run_dynamics:
-        for iteration in range(niterations):
-            # Run some dynamics.
-            initial_time = time.time()
-            integrator.step(nsteps)
-            state = context.getState(getEnergy=True, getPositions=True)
-            final_time = time.time()
-            elapsed_time = final_time - initial_time
-            print "  %.3f s elapsed for %d steps of dynamics" % (elapsed_time, nsteps)
+    for iteration in range(niterations):
+        # Run some dynamics.
+        initial_time = time.time()
+        integrator.step(nsteps)
+        state = context.getState(getEnergy=True, getPositions=True)
+        final_time = time.time()
+        elapsed_time = final_time - initial_time
+        print "  %.3f s elapsed for %d steps of dynamics" % (elapsed_time, nsteps)
 
-            #write out the trajectory
-            app.PDBFile.writeModel(prmtop.topology, state.getPositions(),file=traj_file, modelIndex=iteration)
+        #write out the trajectory
+        app.PDBFile.writeModel(prmtop.topology, state.getPositions(),file=traj_file, modelIndex=iteration)
 
-            # Attempt protonation state changes.
-            initial_time = time.time()
-            mc_titration.update(context)
-            state = context.getState(getEnergy=True)
-            final_time = time.time()
-            elapsed_time = final_time - initial_time
-            print "  %.3f s elapsed for %d titration trials" % (elapsed_time, mc_titration.getNumAttemptsPerUpdate())
+        # Attempt protonation state changes.
+        initial_time = time.time()
+        mc_titration.update(context)
+        state = context.getState(getEnergy=True)
+        final_time = time.time()
+        elapsed_time = final_time - initial_time
+        print "  %.3f s elapsed for %d titration trials" % (elapsed_time, mc_titration.getNumAttemptsPerUpdate())
 
-            # Show titration states.
-            state = context.getState(getEnergy=True)
-            potential_energy = state.getPotentialEnergy()
-            print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
-            fluorine_state_list.append(mc_titration.getTitrationStates()[0])
-        app.PDBFile.writeFooter(prmtop.topology, file=traj_file)
-        traj_file.close()
-        fl_array = np.array(fluorine_state_list)
-        np.savetxt('fluorine_pxylene_array.dat',fl_array)
+        # Show titration states.
+        state = context.getState(getEnergy=True)
+        potential_energy = state.getPotentialEnergy()
+        print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
+        fluorine_state_list.append(mc_titration.getTitrationStates()[0])
+    app.PDBFile.writeFooter(prmtop.topology, file=traj_file)
+    traj_file.close()
+    fl_array = np.array(fluorine_state_list)
+    np.savetxt('fluorine_pxylene_array.dat',fl_array)
 
-    else:
-        cpxml_out = mc_titration.calibrate(context,'pxyl')
-        outfile = open('cpxml_out.xml', 'w')
-        outfile.writelines(cpxml_out)
-        outfile.close()
