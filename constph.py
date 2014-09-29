@@ -928,8 +928,9 @@ if __name__ == "__main__":
             potential_energy = state.getPotentialEnergy()
             print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
             fluorine_state_list.append(mc_titration.getTitrationState(0))
-    fl_array = np.array(fluorine_state_list)
-    np.savetxt('fluorine_pxylene_array.dat',fl_array)
+        fl_array = np.array(fluorine_state_list)
+        np.savetxt('fluorine_pxylene_array.dat',fl_array)
+
     else:
         cpxml_out = mc_titration.calibrate(context,'pxyl')
         outfile = open('cpxml_out.xml', 'w')
