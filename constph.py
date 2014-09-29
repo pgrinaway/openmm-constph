@@ -927,7 +927,7 @@ if __name__ == "__main__":
             state = context.getState(getEnergy=True)
             potential_energy = state.getPotentialEnergy()
             print "Iteration %5d / %5d:    %s   %12.3f kcal/mol (%d / %d accepted)" % (iteration, niterations, str(mc_titration.getTitrationStates()), potential_energy/units.kilocalories_per_mole, mc_titration.naccepted, mc_titration.nattempted)
-            fluorine_state_list.append(mc_titration.getTitrationState(0))
+            fluorine_state_list.append(mc_titration.getTitrationStates()[0])
         fl_array = np.array(fluorine_state_list)
         np.savetxt('fluorine_pxylene_array.dat',fl_array)
 
